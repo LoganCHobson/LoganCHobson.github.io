@@ -3,7 +3,7 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "org.canis.polarity",
+      "package_name": "com.solarsky.polarity",
       "sha256_cert_fingerprints": [
         "CE:E8:18:75:91:62:CF:CA:22:5B:8E:3C:23:50:06:E8:2E:4B:28:D9:E2:78:00:07:17:8F:B0:C6:1A:FE:24:AD"
       ]
