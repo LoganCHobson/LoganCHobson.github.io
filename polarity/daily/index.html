@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polarity daily</title>
+<!-- Link preview cards in messaging apps come from these tags. -->
+<meta name="description" content="One new magnet puzzle every day. Can you beat par?">
+<meta property="og:title" content="Polarity daily">
+<meta property="og:description" content="One new magnet puzzle every day. Can you beat par?">
+<meta property="og:image" content="https://loganchobson.github.io/polarity/icon.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="../icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=DM+Mono:wght@500&family=Figtree:wght@400;600&display=swap">
+<style>
+:root{
+  --paper:#E6EBEF; --board:#CFD8DF; --cell:#F3F6F8; --ink:#16212B; --muted:#566573;
+  --wall:#2B3844; --slug:#6F7D8A; --slug-hi:#C9D3DB; --pull:#1D5BD1; --push:#C92A48; --ok:#1E8A5A; --on:#FFFFFF;
+  --display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"DM Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0F151B; --board:#1A232C; --cell:#25313C; --ink:#E7EDF2; --muted:#93A2B0;
+  --wall:#06090C; --slug:#8E9BA7; --slug-hi:#E3EAEF; --pull:#5B92FF; --push:#FF5F7A; --ok:#4CC790; --on:#0B1015; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;padding-inline:16px;padding-block:20px 32px;-webkit-tap-highlight-color:transparent}
+.app{max-width:440px;margin-inline:auto;display:flex;flex-direction:column;gap:14px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:800;font-size:2.4rem;line-height:.9;letter-spacing:-.03em;margin:0}
+h1 span{color:var(--push)} h1 span+span{color:var(--pull)}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+button:focus-visible,a:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.app-link{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--board);border-radius:12px;padding:10px 12px;font-size:.9rem}
+.app-link a{background:var(--ink);color:var(--paper);text-decoration:none;font-weight:600;padding:8px 12px;border-radius:999px;white-space:nowrap}
+#label{font-family:var(--mono);font-size:.85rem;letter-spacing:.06em;text-transform:uppercase}
+.board{position:relative;width:100%;aspect-ratio:1;background:var(--board);border-radius:14px;touch-action:manipulation;user-select:none}
+.cell,.slug{position:absolute;width:calc(100%/var(--n));height:calc(100%/var(--n));padding:3px}
+.cell>i{display:block;width:100%;height:100%;border-radius:8px;background:var(--cell)}
+.cell.wall>i{background:var(--wall)}
+.cell.socket>i{position:relative}
+.cell.socket>i::after{content:"";position:absolute;inset:14%;border-radius:50%;border:3px dashed var(--muted)}
+.cell.socket.full>i::after{border:3px solid var(--ok)}
+.mag{position:absolute;width:calc(100%/var(--n));height:calc(100%/var(--n));padding:3px;z-index:2}
+.mag>span{display:block;width:100%;height:100%;border-radius:8px;background:var(--push);color:var(--on);transition:background .15s,transform .12s}
+.mag.pull>span{background:var(--pull)}
+.mag:active>span{transform:scale(.92)}
+.mag svg{width:100%;height:100%;display:block;fill:currentColor}
+.mag .in,.mag.pull .out{display:none}.mag.pull .in{display:inline}
+.mag.hinted>span{animation:hint .7s ease-in-out 3}
+@keyframes hint{50%{transform:scale(1.14);box-shadow:0 0 0 4px var(--ink)}}
+.slug{z-index:1;transition:left .2s cubic-bezier(.3,.9,.3,1),top .2s cubic-bezier(.3,.9,.3,1);pointer-events:none;padding:calc(100%/var(--n)*.17)}
+.slug>i{display:block;width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--slug-hi),var(--slug) 62%);box-shadow:0 2px 0 var(--wall)}
+.stats{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.stats b{color:var(--ink);font-size:1.15rem;font-variant-numeric:tabular-nums;margin-left:6px}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.actions button,.win button{padding:12px 8px;border-radius:10px;background:var(--board);font-weight:600}
+.actions button:disabled{opacity:.4;cursor:default}
+#status{min-height:1.45em;margin:0;color:var(--muted);font-size:.92rem}
+.win{background:var(--ink);color:var(--paper);border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.win strong{font-family:var(--display);font-weight:800;font-size:1.3rem;display:block;line-height:1.1}
+.win span{font-size:.9rem;opacity:.8}
+.win button{background:var(--paper);color:var(--ink);padding:10px 16px}
+#sharetext{width:100%;font-family:var(--mono);font-size:.8rem;background:var(--paper);color:var(--ink);border:0;border-radius:8px;padding:8px;resize:none}
+.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:.92rem;color:var(--muted)}
+.rules b{color:var(--ink);font-weight:600}
+.key{display:inline-block;width:.8em;height:.8em;border-radius:3px;vertical-align:-.05em;margin-right:6px}
+.key.b{background:var(--pull)}.key.r{background:var(--push)}
+footer{font-size:.85rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){.slug{transition:none}.mag.hinted>span{animation:none;box-shadow:0 0 0 4px var(--ink)}}
+</style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <h1>Polar<span>i</span><span>t</span>y</h1>
+    <div id="label"></div>
+  </header>
+  <div class="app-link" id="applink" hidden>
+    <span>Have the app? Play this daily there.</span>
+    <a id="openapp" href="#">Open in Polarity</a>
+  </div>
+  <div class="board" id="board"></div>
+  <div class="stats"><span>Moves<b id="moves">0</b></span><span>Par<b id="par">0</b></span></div>
+  <div class="win" id="win" hidden>
+    <div><strong id="wintitle"></strong><span id="winsub"></span></div>
+    <button id="winbtn">Copy result</button>
+    <textarea id="sharetext" rows="3" readonly hidden></textarea>
+  </div>
+  <div class="actions">
+    <button id="undo">Undo</button><button id="restart">Restart</button><button id="hint">Hint</button>
+  </div>
+  <p id="status" aria-live="polite"></p>
+  <ul class="rules">
+    <li><b>Tap a magnet.</b> Every slug in its row and column slides until something stops it.</li>
+    <li><span class="key b"></span><b>Blue pulls</b> slugs in. <span class="key r" style="margin-left:8px"></span><b>Red pushes</b> them out.</li>
+    <li><b>A magnet flips colour each time it fires.</b> Fill every dashed socket.</li>
+  </ul>
+  <footer>A new puzzle every day, the same one for everyone. The Android app adds endless levels.</footer>
+</main>
+<script>
+// Puzzle rules: identical to the game (game/src/Polarity/Puzzle.cpp), so a
+// shared date shows the same board in the browser and in the app.
+function rng(seed){let a=seed>>>0;return function(){a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}}
+const DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
+function prep(L){
+  const n=L.n,solid=new Uint8Array(n*n);
+  L.walls.forEach(c=>solid[c]=1);L.magnets.forEach(c=>solid[c]=1);
+  L.rays=L.magnets.map(c=>{const x=c%n,y=(c/n)|0;return DIRS.map(([dx,dy])=>{const r=[];let px=x+dx,py=y+dy;
+    while(px>=0&&py>=0&&px<n&&py<n&&!solid[py*n+px]){r.push(py*n+px);px+=dx;py+=dy}return r})});
+  return L}
+function pulse(L,pieces,pol,m){
+  const pull=(pol>>m)&1,out=pieces.slice();
+  for(const ray of L.rays[m]){const idx=[];
+    for(let i=0;i<ray.length;i++){const k=pieces.indexOf(ray[i]);if(k>=0)idx.push(k)}
+    const c=idx.length;
+    for(let i=0;i<c;i++)out[idx[i]]=pull?ray[i]:ray[ray.length-c+i]}
+  return{pieces:out,pol:pol^(1<<m)}}
+function ckey(p){return p.slice().sort((a,b)=>a-b).join(',')}
+function solved(L,pieces){return L.sockets.every(s=>pieces.indexOf(s)>=0)}
+function bfs(L,pieces,pol,cap,visit){
+  const seen=new Set([ckey(pieces)+'|'+pol]),q=[{p:pieces,pol,d:0,par:null,m:-1}];
+  for(let h=0;h<q.length;h++){const s=q[h];if(visit(s))return s;if(q.length>cap)return null;
+    for(let m=0;m<L.magnets.length;m++){const t=pulse(L,s.p,s.pol,m),k=ckey(t.pieces)+'|'+t.pol;
+      if(!seen.has(k)){seen.add(k);q.push({p:t.pieces,pol:t.pol,d:s.d+1,par:s,m})}}}
+  return null}
+function pathOf(s){const r=[];while(s&&s.par){r.push(s.m);s=s.par}return r.reverse()}
+function solve(L,pieces,pol){const s=bfs(L,pieces,pol,80000,s=>solved(L,s.p));return s?pathOf(s):null}
+function generate(seed,o){
+  const r=rng(seed),n=o.n,cells=[];for(let i=0;i<n*n;i++)cells.push(i);
+  for(let i=cells.length-1;i>0;i--){const j=(r()*(i+1))|0;[cells[i],cells[j]]=[cells[j],cells[i]]}
+  let k=0;const take=c=>cells.slice(k,k+=c);
+  const L={n,walls:take(o.walls),magnets:take(o.magnets),pieces:take(o.pieces),pol:(r()*(1<<o.magnets))|0,sockets:[]};
+  prep(L);
+  const cfg=new Map();
+  bfs(L,L.pieces,L.pol,40000,s=>{const c=ckey(s.p);if(!cfg.has(c))cfg.set(c,s);return false});
+  let best=null;
+  for(const s of cfg.values()){
+    if(s.d<o.minPar||s.d>o.maxPar)continue;
+    if(s.p.some(c=>L.pieces.indexOf(c)>=0))continue;
+    if(s.d>=3&&new Set(pathOf(s)).size<2)continue;
+    if(!best||s.d>best.d)best=s}
+  if(!best)return null;
+  L.sockets=best.p.slice().sort((a,b)=>a-b);L.par=best.d;
+  return L}
+function daily(dateNum){
+  for(const lo of [7,5,3]){for(let i=0;i<300;i++){const r=rng(dateNum*977+i);r();
+    const L=generate(dateNum*1000+i,{n:6,walls:4+((r()*2)|0),magnets:3+((r()*2)|0),pieces:3,minPar:lo,maxPar:10});
+    if(L)return L}}
+  return null}
+
+// The date comes from ?d=YYYYMMDD; future dates fall back to today.
+const pad=v=>String(v).padStart(2,'0');
+const now=new Date(),today=+(now.getFullYear()+pad(now.getMonth()+1)+pad(now.getDate()));
+const asked=+(new URLSearchParams(location.search).get('d')||0);
+const valid=/^\d{8}$/.test(String(asked))&&asked>=20200101&&+String(asked).slice(4,6)>=1&&+String(asked).slice(4,6)<=12;
+const dateNum=valid?Math.min(asked,today):today;
+const dateStr=String(dateNum).replace(/(\d{4})(\d{2})(\d{2})/,'$1-$2-$3');
+const shareUrl='https://loganchobson.github.io/polarity/daily/?d='+dateNum;
+
+// On Android, offer to open the app (for links opened inside another app's browser).
+if(/Android/i.test(navigator.userAgent)){
+  document.getElementById('applink').hidden=false;
+  document.getElementById('openapp').href='intent://loganchobson.github.io/polarity/daily/?d='+dateNum+
+    '#Intent;scheme=https;package=org.canis.polarity;end';
+}
+
+const $=id=>document.getElementById(id);
+const L=prep(daily(dateNum));
+const S={pieces:L.pieces.slice(),pol:L.pol,hist:[],els:{sockets:{},mags:[],slugs:[]}};
+const SVG='<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="4.5"/><g class="out"><path d="M20 4l5 7H15z"/><path d="M20 36l5-7H15z"/><path d="M4 20l7-5v10z"/><path d="M36 20l-7-5v10z"/></g><g class="in"><path d="M20 13l5-7H15z"/><path d="M20 27l5 7H15z"/><path d="M13 20l-7-5v10z"/><path d="M27 20l7-5v10z"/></g></svg>';
+function place(el,c){el.style.left=(c%L.n)*100/L.n+'%';el.style.top=((c/L.n)|0)*100/L.n+'%'}
+function build(){
+  const b=$('board');b.innerHTML='';b.style.setProperty('--n',L.n);
+  for(let c=0;c<L.n*L.n;c++){
+    if(L.magnets.indexOf(c)>=0)continue;
+    const d=document.createElement('div');d.className='cell'+(L.walls.indexOf(c)>=0?' wall':'')+(L.sockets.indexOf(c)>=0?' socket':'');
+    d.innerHTML='<i></i>';place(d,c);b.appendChild(d);if(L.sockets.indexOf(c)>=0)S.els.sockets[c]=d}
+  L.magnets.forEach((c,m)=>{const t=document.createElement('button');t.className='mag';t.innerHTML='<span>'+SVG+'</span>';
+    place(t,c);t.addEventListener('click',()=>fire(m));b.appendChild(t);S.els.mags.push(t)});
+  S.pieces.forEach(()=>{const s=document.createElement('div');s.className='slug';s.innerHTML='<i></i>';b.appendChild(s);S.els.slugs.push(s)})}
+function fire(m){if(solved(L,S.pieces))return;S.hist.push({p:S.pieces,pol:S.pol});const t=pulse(L,S.pieces,S.pol,m);S.pieces=t.pieces;S.pol=t.pol;$('status').textContent='';render()}
+function render(){
+  const win=solved(L,S.pieces),n=S.hist.length;
+  S.els.slugs.forEach((el,i)=>place(el,S.pieces[i]));
+  S.els.mags.forEach((el,m)=>{const pull=(S.pol>>m)&1;el.classList.toggle('pull',!!pull);el.classList.remove('hinted');
+    el.setAttribute('aria-label','Magnet '+(m+1)+', '+(pull?'pulls':'pushes')+' next')});
+  for(const c in S.els.sockets)S.els.sockets[c].classList.toggle('full',S.pieces.indexOf(+c)>=0);
+  $('label').textContent='Daily '+dateStr;$('moves').textContent=n;$('par').textContent=L.par;
+  $('undo').disabled=!n;$('restart').disabled=!n;$('hint').disabled=win;
+  $('win').hidden=!win;$('sharetext').hidden=true;
+  if(win){$('wintitle').textContent=n<=L.par?'Solved at par':'Solved';
+    $('winsub').textContent=n+' moves, par '+L.par+(n>L.par?'. Shorter is possible.':'.')}}
+$('undo').onclick=()=>{const h=S.hist.pop();if(!h)return;S.pieces=h.p;S.pol=h.pol;$('status').textContent='';render()};
+$('restart').onclick=()=>{S.pieces=L.pieces.slice();S.pol=L.pol;S.hist=[];$('status').textContent='';render()};
+$('hint').onclick=()=>{const p=solve(L,S.pieces,S.pol);
+  if(!p){$('status').textContent='This position cannot be solved. Undo or restart.';return}
+  if(!p.length)return;const el=S.els.mags[p[0]];el.classList.remove('hinted');void el.offsetWidth;el.classList.add('hinted');
+  $('status').textContent=p.length+' moves from here if you play it perfectly.'};
+$('winbtn').onclick=()=>{
+  const n=S.hist.length,txt='Polarity daily '+dateStr+'\n'+n+' moves (par '+L.par+')'+(n<=L.par?' *':'')+'\nCan you do better? '+shareUrl;
+  const show=()=>{const t=$('sharetext');t.hidden=false;t.value=txt;t.focus();t.select()};
+  if(navigator.share){navigator.share({text:txt}).catch(()=>{});return}
+  try{navigator.clipboard.writeText(txt).then(()=>{$('winbtn').textContent='Copied'},show)}catch(e){show()}};
+build();render();
+</script>
+</body>
+</html>
