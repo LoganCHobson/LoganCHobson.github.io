@@ -223,12 +223,12 @@ const asked=+(new URLSearchParams(location.search).get('d')||0);
 const valid=/^\d{8}$/.test(String(asked))&&asked>=20200101&&+String(asked).slice(4,6)>=1&&+String(asked).slice(4,6)<=12;
 const dateNum=valid?Math.min(asked,today):today;
 const dateStr=String(dateNum).replace(/(\d{4})(\d{2})(\d{2})/,'$1-$2-$3');
-const shareUrl='https://loganchobson.github.io/pulse/daily/?d='+dateNum;
+const shareUrl='https://pulse.solarnebulae.com/daily/?d='+dateNum;
 
 // On Android, offer to open the app (for links opened inside another app's browser).
 if(/Android/i.test(navigator.userAgent)){
   document.getElementById('applink').hidden=false;
-  document.getElementById('openapp').href='intent://loganchobson.github.io/pulse/daily/?d='+dateNum+
+  document.getElementById('openapp').href='intent://pulse.solarnebulae.com/daily/?d='+dateNum+
     '#Intent;scheme=https;package=com.solarsky.pulse;end';
 }
 
